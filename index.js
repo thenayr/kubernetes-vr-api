@@ -25,10 +25,6 @@ const options = {
 
 const k8 = new K8Api.Core(options);
 
-function sniffPods() {
-  
-}
-
 function getKubeStream() {
 
   const stream = k8.ns.po.get({ qs: { watch: true } });
@@ -51,30 +47,23 @@ function getKubeStream() {
         io.emit('removePod' , pod);
         break;
       default:
-      // console.log(object);
       console.log("Differnet state - " + object.object.kind + " was " + object.type);
     }
   });
 }
 
 function fetchPods(err, result) {
-  //console.log(result);
   if (err){
     console.log("Cannot connect to Kubernetes")
     err;
   } else {
     const items = result.items;
-    //console.log(items);
-    //for (var p of items) {
-      //pod = JSON.stringify({name: p.metadata.name, status: p.status.phase});
-      //console.log(pod);
-    //}
     var pods = {};
     podList = Array.from(items, i => ({name: i.metadata.name}) );
     podsResponse = { podList };
     console.log(podsResponse);
-    // podsResponse = JSON.stringify(podsResponse);
-    // console.log(podsResponse);
+    // Sometimes this event fires too quickly, lets sleep for a half second
+    sleep.sleep(1);
     io.emit('initPod' , podsResponse);
     console.log("sent pod init");
   }
@@ -87,12 +76,18 @@ app.get('/', function(req, res){
 });
 
 io.on('connection', function(socket) {
-    // console.log(podJson);
     socket.on('sniffPods', function() {
       console.log("Got sniff pods command");
       k8.ns.po.get(fetchPods);
     });
+    socket.on('k8sDestroyPod', function(data) {
+      console.log(data); 
+      k8.ns.po.delete(data.name, (err) => {
+        if(err) {
+          err;
+        } 
+      });
+    })
 });
 
 getKubeStream(); 
-// getKubeStream();
