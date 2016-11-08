@@ -91,9 +91,14 @@ function fetchPods(err, result) {
   } else {
     const items = result.items;
     var pods = {};
-    podList = Array.from(items, i => ({ name: i.metadata.name, ip: i.status.podIP, start: i.status.startTime, namespace: i.metadata.namespace, type: "nginx"}) );
+    console.log("Entering loop")
+    for (var i = 0; i < items.length; i++) {
+      // console.log(items[i].metadata);
+      items[i].metadata.labels.type = items[i].metadata.labels.type ? items[i].metadata.labels.type : "k8s";
+    }
+    podList = Array.from(items, i => ({ name: i.metadata.name, ip: i.status.podIP, start: i.status.startTime, namespace: i.metadata.namespace, type: i.metadata.labels.type }) );
     podsResponse = { podList };
-    console.log(podsResponse);
+    // console.log(podsResponse);
     // Sometimes this event fires too quickly, lets sleep for a half second
     sleep.sleep(1);
     io.emit('initPod' , podsResponse);
