@@ -2,6 +2,8 @@
 
 This is the Node backend for the Kubernetes VR project.  It is meant to work in conjuction with a local `kubectl proxy`.  By default the code will connect to `127.0.0.1:8090`, you can bring up a local proxy by running `kubectl proxy --port=8090`.
 
+[K8sVr](http://i.imgur.com/Q2TJK62.gifv)
+
 ## Build and run
 
 Currently this will only function outside of a Docker container,  the reason being that it connects to localhost to use the Kubectl proxy.  There is the potential of having it run inside of a Kubernetes cluster and talking to the Kubernetes API directly,  but I advise against that for the time being.
